@@ -1,0 +1,300 @@
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=3, minimum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-title" content="">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="msapplication-tap-highlight" content="no">
+<meta name="format-detection" content="telephone=no">
+<meta charset="utf-8">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<title>流量银行-手机流量充值平台</title>
+<link rel="stylesheet" href="./css/public.css" />
+<link rel="stylesheet" href="./css/spinner.css" type="text/css">
+<style>
+	body{background-color: #F3F3F3;}
+	.max-box{padding-top: 40px;}
+	.title-box > .right{
+		width: 50px;
+		height: 30px;
+		color: #FFF;
+		line-height: 30px;
+		text-align: center;
+		border: 1px #039362 solid;
+		background-color: #0B9B6A;
+		padding: 0;
+		top: 5px;
+	}
+	.swipe-box{
+		width: 100%;
+		overflow: hidden;
+		position: relative;
+	}
+	.swipe-item{
+		position: relative;
+		float: left;
+	}
+	.swipe-img{
+		width: 100%;
+		display: block;
+	}
+	.business{
+		padding: 10px;
+	}
+	.business-panels{
+		width: 100%;
+		padding-top: 10px;
+	}
+	/*.business-panel{
+		display: none;
+	}*/
+	.label-box, .packages-box, .price-box{
+		width: 100%;
+		color: #010101;
+		font-size: 14px;
+		line-height: 34px;
+		padding-left: 65px;
+		margin-bottom: 10px;
+		position: relative;
+	}
+	.packages-box{
+		min-height:30px;
+	}
+	.label-box > .label ,.packages-box > .label, .price-box > .label{
+		width: 60px;
+		color: #010101;
+		font-size: inherit;
+		line-height: inherit;
+		text-align: right;
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	.label-box > .input{
+		width: 100%;
+		height: 34px;
+		color: inherit;
+		font-size: inherit;
+		border: 1px solid #E4E0E1;
+		border-radius:5px;
+		background-color: #FFF;
+		padding: 0 5px;
+	}
+	.packages-box > .label{
+		line-height: 1.8em;
+	}
+	.packages-item{
+		width: 33.332%;
+		padding: 2px;
+		float: left;
+	}
+	.business-panel .control-radio{
+		width: 100%;
+		height:40px;
+		/**color: #29BD8B;**/
+		color:E4E0E1;
+		font-size: 16px;
+		line-height: 1.4em;
+		text-align: center;
+	}
+	.control-radio > .label{
+		padding: 2px;
+		border-radius:5px;
+		height:35px;
+		line-height:30px;
+		font-size:18px;
+	}
+	.control-radio > .input:checked + .label{
+		/**color: #FFF;**/
+		background-color: #29BD8B;
+		color:E4E0E1;
+	}
+	.control-radio > .input[disabled] + .label{
+		color: #010101;
+	}
+	.control-radio > .label span{
+		font-size: 12px;
+		line-height: 1.2em;
+		display: block;
+	}
+	.price-box{
+		padding-left: 70px;
+	}
+	.price-box > .label{
+		width: 70px;
+	}
+	.price-box > .text{
+		color: #FF6600;
+	}
+	.price-box > .text span{
+		font-size: 18px;
+	}
+	.submit-btn{
+		width: 70%;
+		height: 36px;
+		color: #FFF;
+		font-size: 14px;
+		border-radius: 5px;
+		background-color: #29BD8B;
+		margin: auto;
+		display: block;
+	}
+	.exchange-tips{
+		color: #28BC8A;
+		font-size: 14px;
+		border-bottom: 1px solid #EDEBEC;
+		padding-bottom: 5px;
+		margin-bottom: 10px;
+	}
+	#convert-btn{
+		margin-top: 30px;
+	}
+	.title-box > .left{
+		background-image: url(res/images/return.png);
+		background-size: 20px auto;
+	}
+	.exchange-text{
+		color:rgb(255,0,0);
+	}
+	.business-msg{
+		font-size: 18px;
+		color:#FF0000;
+		margin: 10px auto;
+	}
+	.price-box,.packages-box,label-box{
+		margin-bottom: 20px;
+	}
+</style>
+</head>
+<body>
+	<div class="max-box">
+		<div class="title-box">
+			<span class="text">流量充值-首页</span>
+		</div>
+		<div class="swipe-box" id="swipe-box">
+			<div>
+				<a class="swipe-item" href="javascript:;">
+					<img class="swipe-img" src="res/images/banner1.gif" />
+				</a>
+			</div>
+		</div><!-- sildes box end -->
+		<div class="business">
+			<div class="business-panels">
+				<div class="business-panel">
+					<p class="business-msg"><span>输入手机号后可查看详细充值套餐</span></p>
+					<div class="label-box">
+
+						<span class="label">手机号码:</span>
+						<input id="phone" class="input" type="tel" placeholder="请输入需要充值的手机号码" maxlength="11" />
+						<input type="hidden" id="provinceid" value="">
+						<input type="hidden" id="operator" value="">
+					</div>
+					<div class="packages-box" >
+						<span class="label">流量套餐:</span>
+						<ul class="packages-list" id="national_traff">
+							
+							<li class="packages-item">
+								<div class="control-radio">
+									<input class="input" id="packages-7" name="packages" type="radio" data-name="" data-price="2.00" />
+									<label class="label" for="packages-7">
+										10M
+										<span></span>
+									</label>
+								</div>
+							</li>
+							
+							
+							<li class="packages-item">
+								<div class="control-radio">
+									<input class="input" id="packages-6" name="packages" type="radio" data-name="" data-price="3.00" />
+									<label class="label" for="packages-6">
+										20M
+										<span></span>
+									</label>
+								</div>
+							</li>
+							
+							
+							<li class="packages-item">
+								<div class="control-radio">
+									<input class="input" id="packages-5" name="packages" type="radio" data-name="" data-price="6.00" />
+									<label class="label" for="packages-5">
+										50M
+										<span></span>
+									</label>
+								</div>
+							</li>
+							
+							<li class="packages-item">
+								<div class="control-radio">
+									<input class="input" id="packages-4" name="packages" type="radio" data-name="" data-price="10.00" />
+									<label class="label" for="packages-4">
+										100M
+										<span></span>
+									</label>
+								</div>
+							</li>
+							
+							<li class="packages-item">
+								<div class="control-radio">
+									<input class="input" id="packages-3" name="packages" type="radio" data-name="" data-price="15.00" />
+									<label class="label" for="packages-3">
+										200M
+										<span></span>
+									</label>
+								</div>
+							</li>
+							
+							<li class="packages-item">
+								<div class="control-radio">
+									<input class="input" id="packages-2" name="packages" type="radio"  data-name="" data-price="30.00" />
+									<label class="label" for="packages-2">
+										500M
+										<span></span>
+									</label>
+								</div>
+							</li>
+							<li class="packages-item">
+								<div class="control-radio">
+									<input class="input" id="packages-1" name="packages" type="radio"  data-name="" data-price="60.00" />
+									<label class="label" for="packages-1">
+										1G
+										<span></span>
+									</label>
+								</div>
+							</li>
+							<li class="clear"></li>
+						</ul><!-- packages list end -->
+					</div><!-- packages end -->
+					<div class="price-box">
+						<span class="label">应付款：</span>
+						<div class="text">
+							￥
+							<span>0</span>.00
+						</div>
+					</div>
+					<form id="recharge" method="get">
+						<input type="hidden" id="reach_data" name="data"/>
+					</form>
+					<button class="submit-btn" id="buy-btn">立即购买</button><!-- subimt button -->
+				</div>
+			</div>
+		</div><!-- business end -->
+		<div style="width: 100%;height: 80px;">
+			<!-- this fisll block -->
+		</div>
+		
+	</div><!-- max box end -->
+	<div class="spinner-f" style="display:none">
+		<div class="spinner-loader" >
+		  Loading…
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script type="text/javascript" src="./js/jquery.mobile.custom.min.js"></script>
+<script type="text/javascript" src="./js/index/index.js"></script>
+<script type="text/javascript" src="./js/public.js"></script>
+<script type="text/javascript" src="./js/jbase64.js"></script>
+</html>

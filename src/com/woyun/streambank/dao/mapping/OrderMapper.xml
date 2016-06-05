@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.woyun.streambank.dao.OrderMapper">
+	<insert id="addOrder"
+		parameterType="com.woyun.streambank.model.Order" useGeneratedKeys="true" keyProperty="orderId">
+		INSERT INTO 
+			orders (
+				package_id,
+				package_name,
+				pay_time,
+				create_time,
+				price,
+				total,
+				num,
+				phone,
+				pay_type,
+				trade_no,
+				out_trade_no,
+				dealer_id,
+				discount_price,
+				discount
+			) VALUES (
+				#{packageId},
+				#{packageName},
+				#{payTime},
+				#{createTime},
+				#{price},
+				#{total},
+				#{num},
+				#{phone},
+				#{payType},
+				#{tradeNo},
+				#{outTradeNo},
+				#{dealer.dealerId},
+				#{discountPrice},
+				#{discount}
+			)
+	</insert>
+	<update id="updOrderById"
+				parameterType="com.woyun.streambank.model.Order">
+		UPDATE 
+			orders 
+		SET 
+			phone = #{phone}
+			<if test=" tradeNo != null">
+				,trade_no = #{tradeNo}
+			</if>
+			<if test=" payState != null">
+				,pay_state = #{payState} 
+			</if>
+			<if test=" rechargeState != null">
+				,recharge_state = #{rechargeState}
+			</if>
+			<if test=" rechargeResult != null">
+				,recharge_result=#{rechargeResult}
+			</if>
+		WHERE 
+			order_id = #{orderId}
+	</update>
+	<select id="findOrderByOutTradeNo"
+		parameterType="com.woyun.streambank.model.Order"
+		resultMap="order">
+		SELECT 
+			order_id,package_id,package_name,pay_time,create_time,price,total,num,phone,pay_state,recharge_state,
+			trade_no,recharge_state,out_trade_no,discount_price,discount,dealer_id,recharge_result,pay_type
+		FROM
+			orders
+		WHERE
+			out_trade_no = #{outTradeNo}
+			<if test="payState != null">
+				AND
+					pay_state = ${payState}
+			</if>
+	</select>
+	<select id="findOrderById"
+		parameterType="com.woyun.streambank.model.Order"
+		resultMap="order">
+		SELECT 
+			order_id,package_id,package_name,pay_time,create_time,price,total,num,phone,pay_state,recharge_state,
+			trade_no,recharge_state,out_trade_no,discount_price,discount,dealer_id,recharge_result
+		FROM
+			orders
+		WHERE
+			order_id = #{value}
+	</select>
+	<resultMap type="com.woyun.streambank.model.Order" id="order">
+		<result property="orderId" column="order_id"/>
+		<result property="packageId" column="package_id"/>
+		<result property="packageName" column="package_name"/>
+		<result property="payTime" column="pay_time"/>
+		<result property="createTime" column="create_time"/>
+		<result property="price" column="price"/>
+		<result property="total" column="total"/>
+		<result property="num" column="num"/>
+		<result property="phone" column="phone"/>
+		<result property="payState" column="pay_state"/>
+		<result property="payType" column="pay_type"/>
+		<result property="rechargeState" column="recharge_state"/>
+		<result column="trade_no" property="tradeNo"/>
+		<result column="recharge_state" property="rechargeState"/>
+		<result column="out_trade_no" property="outTradeNo"/>
+		<result column="discount_price" property="discountPrice"/>
+		<result column="discount" property="discount"/>
+		<result column="recharge_result" property="rechargeResult"/>
+		<association property="dealer" column="dealer_id" select="getDealer">
+		  <id property="dealerId" column="dealer_id"/>
+		</association>
+	</resultMap>
+	<select id="getDealer" parameterType="int" resultType="com.woyun.streambank.model.Dealer">  
+		SELECT 
+			dealer_id dealerId,
+			dealer dealerName,
+			dealer_no dealerNo,
+			retail_discount retailDiscount,
+			settlement_discount settlementDiscount
+		FROM
+			dealer
+		WHERE
+			dealer_id = #{value}
+	</select>
+</mapper>

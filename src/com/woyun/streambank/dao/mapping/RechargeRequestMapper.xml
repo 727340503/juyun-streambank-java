@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.woyun.streambank.dao.RechargeRequestMapper">
+	<insert id="addRechargeRequest"
+		parameterType="com.woyun.streambank.model.RechargeRequest">
+		INSERT INTO 
+			recharge_request (
+				package_id,
+				package_name,
+				recharge_mobile,
+				order_id
+			) VALUES (
+				#{packageId},
+				#{packageName},
+				#{rechargeMobile},
+				#{orderId}
+			)
+	</insert>
+	<update id="updateByID"
+		parameterType="com.woyun.streambank.model.RechargeRequest">
+		UPDATE 
+			recharge_request 
+		SET 
+			recharge_num = #{rechargeNum}
+			<if test="rechargeState != null">
+				,recharge_state=#{rechargeState}
+			</if>
+			<if test="rechaegeResult != null">
+				,rechaege_result=#{rechaegeResult}
+			</if>
+			<if test="rechargeState != null">
+				,recharge_state=#{rechargeState}
+			</if>
+		WHERE
+			rechargerequest_id = #{rechargeRequestId}
+	</update>
+	<select id="getWaitRechargeRequestList"
+		resultType="com.woyun.streambank.model.RechargeRequest">
+		SELECT 
+			rechargerequest_id rechargerequestId,
+			recharge_mobile rechargeMobile,
+			package_id packageId,
+			package_name packageName,
+			order_id orderId,
+			recharge_num rechargeNum,
+			recharge_state rechargeState,
+			rechaege_result rechaegeResult
+		FROM 
+			recharge_request
+		WHERE
+			recharge_state = 1
+		AND
+			rechaege_result IS NULL
+	</select>
+	
+</mapper>

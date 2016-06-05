@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="streambank"
+  id="myeclipse.1422960871070"
+  context-root="/streambank"
+  j2ee-spec="5.0"
+  archive="streambank.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+
