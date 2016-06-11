@@ -19,7 +19,7 @@ public class SendRechargeFlowRequestListener implements ServletContextListener{
 	}
 
 	public void contextInitialized(ServletContextEvent event) {
-		//需要手动的方式对bean进行实例化
+//		//需要手动的方式对bean进行实例化
 		ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(event.getServletContext());
 		sendRechargeFlowRequestTask = (SendRechargeFlowRequestTask) context.getBean("sendRechargeFlowRequestTask");
 		//通过配置定时器，让首页的数据每隔一小时同步一次(配置为守护线程，项目关闭的时候该线程自动消失)

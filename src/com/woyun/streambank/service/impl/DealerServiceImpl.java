@@ -13,8 +13,8 @@ public class DealerServiceImpl implements DealerService{
 	@Autowired
 	private DealerMapper dealerMapper;
 
-	public Dealer findDealerByNo(String dealerNo) {
-		return dealerMapper.findDealerByNo(dealerNo);
+	public Dealer findDealerByName(String dealerNo) {
+		return dealerMapper.findDealerByName(dealerNo);
 	}
 
 }

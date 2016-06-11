@@ -19,10 +19,15 @@ $(function(){
 		price = price.split('.');
 		$('.price-box .text').html('￥<span>' + price[0] + '</span>' + (price.length > 1 ? '.' + price[1]: ''));
 	});
-	$('#phone').blur(function(){
-		get_package();
+//	$('#phone').blur(function(){
+//		get_package();
+//	});
+	$('#phone').bind('input propertychange',function(){
+		var phone = $('#phone').val();
+		if(phone.length >= 11){
+			get_package();
+		}
 	});
-	
 	$('#buy-btn').bind('click',function(){
 		recharge_flow();
 	});
@@ -88,7 +93,7 @@ function recharge_flow(){
 		}
 		var data = {};
 		data.flow = flow;
-//		data.phone = $('#phone').val();
+		data.phone = phone;
 		var data_str = BASE64.encoder(JSON.stringify(data));
 		$('#reach_data').val(data_str);
 		$('#phone').val('');

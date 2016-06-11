@@ -22,7 +22,7 @@ public class PackageController {
 	@Autowired
 	private PackageService packageService;
 	
-	@RequestMapping(value="/getProducts.json",method=RequestMethod.POST)
+	@RequestMapping(value="/getProducts.json",method=RequestMethod.GET)
 	public Result getProductList(HttpServletRequest request, HttpServletResponse response){
 		Result result = new Result();
 		try{
@@ -31,11 +31,11 @@ public class PackageController {
 				result.setStatus(1);
 				result.setMessage("参数不完整");
 			}else{
-				String dealerNo = request.getParameter("dealerNo");
-				if(StringUtils.isEmpty(dealerNo)){
-					dealerNo = StreamBankConfig.APP_DEALER_NO;
+				String dealer = request.getParameter("dealer");
+				if(StringUtils.isEmpty(dealer)){
+					dealer = StreamBankConfig.APP_DEALER_NAME;
 				}
-				result = packageService.getPackageList(phone,dealerNo);
+				result = packageService.getPackageList(phone,dealer);
 			}
 		}catch (Exception e) {
 			Log4jUtil.LOG4J.error(e);

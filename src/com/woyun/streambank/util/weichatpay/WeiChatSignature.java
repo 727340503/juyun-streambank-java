@@ -17,7 +17,7 @@ import com.woyun.streambank.util.common.Log4jUtil;
  * Date: 2014/10/29
  * Time: 15:23
  */
-public class Signature {
+public class WeiChatSignature {
     /**
      * 签名算法
      * @param o 要参与签名的数据对象
@@ -43,9 +43,9 @@ public class Signature {
         }
         String result = sb.toString();
         result += "key=" + WeiChatPayConfig.KEY;
-        Log4jUtil.LOG4J.info("Sign Before MD5:" + result);
+//        Log4jUtil.LOG4J.info("Sign Before MD5:" + result);
         result = MD5.MD5Encode(result).toUpperCase();
-        Log4jUtil.LOG4J.info("Sign Result:" + result);
+//        Log4jUtil.LOG4J.info("Sign Result:" + result);
         return result;
     }
 
@@ -84,7 +84,7 @@ public class Signature {
         //清掉返回数据对象里面的Sign数据（不能把这个数据也加进去进行签名），然后用签名算法进行签名
         map.put("sign","");
         //将API返回的数据根据用签名算法进行计算新的签名，用来跟API返回的签名进行比较
-        return Signature.getSign(map);
+        return WeiChatSignature.getSign(map);
     }
 
     /**
@@ -109,7 +109,7 @@ public class Signature {
         //清掉返回数据对象里面的Sign数据（不能把这个数据也加进去进行签名），然后用签名算法进行签名
         map.put("sign","");
         //将API返回的数据根据用签名算法进行计算新的签名，用来跟API返回的签名进行比较
-        String signForAPIResponse = Signature.getSign(map);
+        String signForAPIResponse = WeiChatSignature.getSign(map);
 
         if(!signForAPIResponse.equals(signFromAPIResponse)){
             //签名验不过，表示这个API返回的数据有可能已经被篡改了
@@ -120,4 +120,21 @@ public class Signature {
         return true;
     }
 
+    /**
+     * 获取发送统一下单请求的xml格式参数
+     * @author 芮浩
+     * @date 2016-6-5
+     * 
+     * @return
+     * @throws Exception 
+     */
+    public static String getRequestXmlInfoByMap(Map<String,String> paramMap) throws Exception{
+    	String sign = getSign(paramMap);
+    	if(sign == null){
+    		return null;
+    	}
+    	paramMap.put("sign", sign);
+    	return XMLParser.getXmlInfoByMap(paramMap);
+    }
+    
 }

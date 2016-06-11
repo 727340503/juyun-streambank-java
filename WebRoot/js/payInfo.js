@@ -12,4 +12,7 @@ $(function(){
 	$('#alipay-btn').bind('click',function(){
 		window.location.href = project+'/order/createOrder.do?pay=1';
 	});
+	$('#weichat-btn').bind('click',function(){
+		window.location.href = project+'/order/createOrder.do?pay=2';
+	});
 })

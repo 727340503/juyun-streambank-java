@@ -4,10 +4,13 @@
 
 <mapper namespace="com.woyun.streambank.dao.PackageMapper">
 	<select id="getPhoneOperator" 
-		resultType="Integer"
+		resultType="com.woyun.streambank.model.NumberSection"
 		parameterType="string">
 		SELECT 
-			operator
+			operator,
+			province,
+			city,
+			number
 		FROM
 			numset
 		WHERE

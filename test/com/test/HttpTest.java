@@ -6,7 +6,10 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.woyun.streambank.model.Order;
 import com.woyun.streambank.model.RechargeRequest;
+import com.woyun.streambank.service.WeiChatOrderService;
+import com.woyun.streambank.service.impl.WeiChatOrderSericeImpl;
 import com.woyun.streambank.util.common.HttpClientUtil;
 import com.woyun.streambank.util.common.JsonUtil;
 import com.woyun.streambank.util.common.maiyuan.MaiYuanConfig;
@@ -46,5 +49,16 @@ public class HttpTest {
 		System.out.println(paramStr);
 		String httpResult = HttpClientUtil.sendPost(MaiYuanConfig.HTTP_URL, paramStr);
 		System.out.println(httpResult);
+	}
+	
+	@Test
+	public void test3() throws Exception{
+		Order order = new Order();
+		order.setOutTradeNo("weichat2016060518988590416");
+		order.setTotal(0.01);
+		order.setPackageName("5M测试");
+		WeiChatOrderService w = new WeiChatOrderSericeImpl();
+		String str = w.getWeiChatOrderPayUrl(order);
+		System.out.println(str);
 	}
 }

@@ -35,6 +35,7 @@
     <filter-name>encodingFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
+  <!-- 保存请求日志的过滤器 -->
   <filter>
   	<filter-name>saveRequestLogFilter</filter-name>
   	<filter-class>com.woyun.streambank.filter.SaveRequestLogFiler</filter-class>
@@ -54,6 +55,7 @@
   		classpath:applicationContext.xml
   	</param-value>
   </context-param>
+  <!-- 启动发送充值请求的监听器 -->
   <listener>
   		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>

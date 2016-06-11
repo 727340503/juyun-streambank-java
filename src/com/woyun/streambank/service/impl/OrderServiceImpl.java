@@ -2,6 +2,7 @@ package com.woyun.streambank.service.impl;
 
 import java.io.PrintWriter;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,13 +20,14 @@ import com.woyun.streambank.model.Dealer;
 import com.woyun.streambank.model.FlowPackage;
 import com.woyun.streambank.model.Order;
 import com.woyun.streambank.model.PushMsg;
+import com.woyun.streambank.model.Result;
 import com.woyun.streambank.service.AlipayOrderService;
 import com.woyun.streambank.service.DealerService;
 import com.woyun.streambank.service.OrderService;
 import com.woyun.streambank.service.PackageService;
+import com.woyun.streambank.service.WeiChatOrderService;
 import com.woyun.streambank.util.common.Base64Util;
 import com.woyun.streambank.util.common.DESUtils;
-import com.woyun.streambank.util.common.DateUtil;
 import com.woyun.streambank.util.common.JsonUtil;
 import com.woyun.streambank.util.common.Log4jUtil;
 import com.woyun.streambank.util.common.maiyuan.MaiYuanConfig;
@@ -42,7 +44,8 @@ public class OrderServiceImpl implements OrderService{
 	private OrderMapper orderMapper;
 	@Autowired
 	private AlipayOrderService alipayOrderService;
-	
+	@Autowired
+	private WeiChatOrderService weiChatOrderService;
 	public String getPayToken(HttpServletRequest request) throws Exception {
 		try{
 			HttpSession session = request.getSession();
@@ -68,7 +71,7 @@ public class OrderServiceImpl implements OrderService{
 					return "/web/error";
 				}
 				//查询折扣
-				Dealer dealer = dealerService.findDealerByNo(StreamBankConfig.APP_DEALER_NO);
+				Dealer dealer = dealerService.findDealerByName(StreamBankConfig.APP_DEALER_NAME);
 				StringBuilder sb = new StringBuilder();
 				sb.append("{\"phone\":\"");
 				sb.append(phone);
@@ -87,12 +90,13 @@ public class OrderServiceImpl implements OrderService{
 		}
 	}
 
-	public String createOrder(HttpSession session, String payType,HttpServletResponse response) throws Exception {
+	public String createOrder(HttpServletRequest request, String payType,HttpServletResponse response) throws Exception {
 		try{
+			HttpSession session = request.getSession();
 			String token = session.getAttribute("token") == null?null:session.getAttribute("token").toString();
 			session.removeAttribute("token");//订单创建成功后移除token,防止多次请求
 			if(StringUtils.isEmpty(token)){
-				session.setAttribute("errorMsg", "请求过于频繁,请重试");
+				session.setAttribute("errorMsg", "请求次数过多,请重试");
 				return "/web/error";
 			}
 			String jsonStr = DESUtils.decrypt(token);
@@ -105,19 +109,30 @@ public class OrderServiceImpl implements OrderService{
 				return "/web/error";
 			}
 			//查询折扣
-			Dealer dealer = dealerService.findDealerByNo(StreamBankConfig.APP_DEALER_NO);
-			String outTradeNo = "alipay" + DateUtil.getOrderTime() +UUID.randomUUID().toString().replaceAll("-", "")+ phone.trim();
+			Dealer dealer = dealerService.findDealerByName(StreamBankConfig.APP_DEALER_NAME);
+			String outTradeNo = UUID.randomUUID().toString().replaceAll("-", "");
 			Order order = getOrder(phone,flowPackage,dealer,Integer.parseInt(payType),1,outTradeNo);
 			int orderId = orderMapper.addOrder(order);//创建订单
 			if(orderId > 0){
-				//根据订单结果生成相应的支付链接
-				order.setTotal(0.01);
-				order.setDiscountPrice(0.01);
-				String html = alipayOrderService.getAlipayUrl(order);
-				// 返回信息
-				response.setContentType("text/html;charset=utf-8");
-				PrintWriter out = response.getWriter();
-				out.print(html);
+				if("1".equals(payType)){//判断是否为支付宝充值,支付宝充值创建支付宝连接
+					//根据订单结果生成相应的支付链接
+					order.setTotal(0.01);
+					order.setDiscountPrice(0.01);
+					String html = alipayOrderService.getAlipayUrl(order);
+					// 返回信息
+					response.setContentType("text/html;charset=utf-8");
+					PrintWriter out = response.getWriter();
+					out.print(html);
+				}else{//创建微信支付连接
+					//请求统一下单api获取prepayid号
+					String dispatcherUrl = weiChatOrderService.getWeiChatOrderPayUrl(order);
+					if(dispatcherUrl != null){
+						response.sendRedirect(dispatcherUrl);//重定向
+					}else{
+						session.setAttribute("errorMsg", "调用微信支付,请重试");
+						return "/web/error";
+					}
+				}
 			}else{
 				session.setAttribute("errorMsg", "创建订单失败,请稍后重试");
 				return "/web/error";
@@ -138,7 +153,11 @@ public class OrderServiceImpl implements OrderService{
 		order.setDealer(dealer);//代理商
 		order.setPayTime(now);//支付时间
 		order.setCreateTime(now);//创建时间
-		order.setPayType(payType);//支付方式
+		if(payType == 1){
+			order.setPayType(1);//支付方式支付宝
+		}else{
+			order.setPayType(2);//支付方式微信
+		}
 		order.setPhone(phone);//充值号码
 		order.setPrice(price);//原始单价
 		order.setTotal(price*discount*num);//总价:单价*折扣*数量
@@ -177,6 +196,63 @@ public class OrderServiceImpl implements OrderService{
 		}catch (Exception e) {
 			throw e;
 		}
+	}
+
+	public boolean updOrderPayState(Order order) throws Exception {
+		Order updOrder = new Order();
+		updOrder.setTradeNo(order.getTradeNo());
+		updOrder.setOrderId(order.getOrderId());
+		updOrder.setPayState(2);//交易状态2为已支付
+		updOrder.setPhone(order.getPhone());
+		int result = orderMapper.updOrderById(updOrder);
+		if(result != 0){
+			return true;
+		}
+		return false;
+	}
+
+	public Result createAppOrder(Map<String, Object> paramMap) throws Exception {
+		Result result = new Result();
+		try{
+			String phone = paramMap.get("phone").toString();
+			String payType = paramMap.get("pay").toString();
+			int num = Integer.parseInt(paramMap.get("num").toString());
+			//查询套餐
+			FlowPackage flowPackage = packageService.getPackageByPackageId(phone, paramMap.get("package").toString());
+			if(flowPackage == null){
+				result.setStatus(4);
+				result.setMessage("选择的套餐不正确");
+				return result;
+			}
+			//查询折扣
+			Dealer dealer = dealerService.findDealerByName(paramMap.get("dealer").toString());
+			String outTradeNo = UUID.randomUUID().toString().replaceAll("-", "");
+			Order order = getOrder(phone,flowPackage,dealer,Integer.parseInt(payType),num,outTradeNo);
+			int orderId = orderMapper.addOrder(order);//创建订单
+			if(orderId > 0){
+				Map<String, Object> resultMap = new HashMap<String, Object>();
+				resultMap.put("price", order.getPrice());
+				resultMap.put("outTradeNo",outTradeNo);
+				resultMap.put("total", order.getTotal());
+				resultMap.put("package", order.getPackageId());
+				resultMap.put("packageName","流量充值-"+order.getPackageName());
+				if("2".equals(payType)){//判断是否为微信支付
+					//获取预支付id
+					String prepareId = "123";
+					resultMap.put("prepareId", prepareId);
+				}
+				String resParam = DESUtils.encrypt(Base64Util.getBase64(JsonUtil.mapToJsonstr(resultMap)));
+				result.setStatus(0);
+				result.setMessage("创建订单成功");
+				result.setData(resParam);
+			}else{
+				result.setStatus(5);
+				result.setMessage("订单创建失败，请重试");
+			}
+		}catch (Exception e) {
+			throw e;
+		}
+		return result;
 	}
 	
 }

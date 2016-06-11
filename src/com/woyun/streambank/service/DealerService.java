@@ -9,5 +9,5 @@ import com.woyun.streambank.model.Dealer;
  *
  */
 public interface DealerService {
-	public Dealer  findDealerByNo(String dealerNo);
+	public Dealer  findDealerByName(String dealerNo);
 }

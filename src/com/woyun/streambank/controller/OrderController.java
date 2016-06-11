@@ -2,6 +2,7 @@ package com.woyun.streambank.controller;
 
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.woyun.streambank.model.PushMsg;
+import com.woyun.streambank.model.Result;
 import com.woyun.streambank.service.OrderService;
 import com.woyun.streambank.util.common.Log4jUtil;
 import com.woyun.streambank.util.common.ParameterCommon;
@@ -41,8 +43,17 @@ public class OrderController {
 		return pageName;
 	}
 	
+	/**
+	 * 创建订单接口
+	 * @author 芮浩
+	 * @date 2016-6-8
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value="/createOrder.do",method=RequestMethod.GET)
-	public String createAlipaiOrder(HttpServletRequest request,HttpServletResponse response){
+	public String createOrder(HttpServletRequest request,HttpServletResponse response){
 		String result = null;
 		HttpSession session = request.getSession();
 		try{
@@ -51,7 +62,7 @@ public class OrderController {
 				session.setAttribute("errorMsg", "非法访问");
 				result = "/web/error";
 			}else{
-				result = orderService.createOrder(session, payType,response);
+				result = orderService.createOrder(request, payType,response);
 			}
 		}catch (Exception e) {
 			Log4jUtil.LOG4J.error(e);
@@ -62,9 +73,17 @@ public class OrderController {
 		return result;
 	}
 	
+	/**
+	 * 流量充值异步回调接口
+	 * @author 芮浩
+	 * @date 2016-6-8
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value="/recharge_notify.do",method=RequestMethod.POST)
 	public String rechargeFlowNotify(HttpServletRequest request,HttpServletResponse response){
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>rechatge_notify.do");
 		PrintWriter out = null;
 		String result = "fail";
 		try{
@@ -82,5 +101,51 @@ public class OrderController {
 			out.write(result);
 		}
 		return null;
+	}
+	
+	@RequestMapping(value="/createOrder.json",method=RequestMethod.GET)
+	public Result createAppRechargeOrder(HttpServletRequest request,HttpServletResponse response){
+		Result result = new Result();
+		try{
+			String param = request.getQueryString();
+			if(param.indexOf("action=createOrder") == -1 || param.indexOf("action=createOrder") != 0){//判断请求是否是通过转发过来的,转发的请求中有该参数
+				result.setStatus(100);
+				result.setMessage("非法访问");
+				return result;
+			}
+			Map<String, Object> paramMap = ParameterCommon.buildParameter(request);
+			if(StringUtils.isEmpty(paramMap.get("phone"))){
+				result.setStatus(1);
+				result.setMessage("参数不完整");
+				return result;
+			}
+			if(StringUtils.isEmpty(paramMap.get("package"))){
+				result.setStatus(1);
+				result.setMessage("参数不完整");
+				return result;
+			}
+			if(StringUtils.isEmpty(paramMap.get("pay"))){
+				result.setStatus(1);
+				result.setMessage("参数不完整");
+				return result;
+			}
+			if(StringUtils.isEmpty(paramMap.get("dealer"))){
+				result.setStatus(1);
+				result.setMessage("参数不完整");
+				return result;
+			}
+			if(StringUtils.isEmpty(paramMap.get("num"))){
+				result.setStatus(1);
+				result.setMessage("参数不完整");
+				return result;
+			}
+			result = orderService.createAppOrder(paramMap);
+		}catch (Exception e) {
+			e.printStackTrace();
+			Log4jUtil.LOG4J.error(e);
+			result.setStatus(999);
+			result.setMessage("服务器繁忙,请重试");
+		}
+		return result;
 	}
 }

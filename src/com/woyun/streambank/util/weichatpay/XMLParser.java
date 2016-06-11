@@ -1,6 +1,7 @@
 package com.woyun.streambank.util.weichatpay;
 
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,11 +55,10 @@ public class XMLParser {
 //    }
 
     public static Map<String,Object> getMapFromXML(String xmlString) throws Exception {
-
         //这里用Dom的方式解析回包的最主要目的是防止API新增回包字段
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        InputStream is =  Util.getStringStream(xmlString);
+        InputStream is =  WeiChatUtil.getStringStream(new String(xmlString.getBytes(),"utf-8"));
         Document document = builder.parse(is);
 
         //获取到document里面的全部结点
@@ -76,6 +76,30 @@ public class XMLParser {
         return map;
 
     }
+    
+    public static String getXmlInfoByMap(Map<String, String> inMap) throws Exception {  
+		StringBuffer sb = new StringBuffer();  
+		String resStr = "";
+		try{
+			sb.append("<xml>");
+			for(Map.Entry<String,String> entry:inMap.entrySet()){
+				if(entry.getValue() != null){
+					String key = entry.getKey();
+					String value = entry.getValue().toString();
+					sb.append("<" + key + ">");
+//					sb.append("<![CDATA[" + URLEncoder.encode(value,"utf-8") + "]]>");
+					sb.append(URLEncoder.encode(value,"utf-8"));
+					sb.append("</" + key + ">");
+				}
+			}
+			sb.append("</xml>");
+//			resStr = new String(sb.toString().getBytes(), "ISO8859-1"); 
+			resStr = new String(sb.toString().getBytes(), "gbk"); 
+		}catch (Exception e) {
+			throw e;
+		}
+        return resStr; 
+    }  
 
 
 }

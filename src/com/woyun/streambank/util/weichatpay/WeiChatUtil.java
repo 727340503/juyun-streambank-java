@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-public class Util {
+public class WeiChatUtil {
     /**
      * 通过反射的方式遍历对象的属性和属性值，方便调试
      *
@@ -23,6 +23,15 @@ public class Util {
         }
     }
 
+    /**
+     * 读取输入流的数据
+     * @author 芮浩
+     * @date 2016-6-5
+     * 
+     * @param in
+     * @return
+     * @throws IOException
+     */
     public static byte[] readInput(InputStream in) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len = 0;
@@ -35,6 +44,15 @@ public class Util {
         return out.toByteArray();
     }
 
+    /**
+     * 将输入流的数据转为字符串
+     * @author 芮浩
+     * @date 2016-6-5
+     * 
+     * @param is
+     * @return
+     * @throws IOException
+     */
     public static String inputStreamToString(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int i;
@@ -45,6 +63,14 @@ public class Util {
     }
 
 
+    /**
+     * 字符串转为输入流
+     * @author 芮浩
+     * @date 2016-6-5
+     * 
+     * @param sInputString
+     * @return
+     */
     public static InputStream getStringStream(String sInputString) {
         ByteArrayInputStream tInputStringStream = null;
         if (sInputString != null && !sInputString.trim().equals("")) {
@@ -61,6 +87,17 @@ public class Util {
 //        return xStreamForResponseData.fromXML(xml);
 //    }
 
+    /**
+     * 从map获取key
+     * 对应的value
+     * @author 芮浩
+     * @date 2016-6-5
+     * 
+     * @param map
+     * @param key
+     * @param defaultValue
+     * @return
+     */
     public static String getStringFromMap(Map<String, Object> map, String key, String defaultValue) {
         if (key == "" || key == null) {
             return defaultValue;
@@ -73,6 +110,15 @@ public class Util {
         }
     }
 
+    /**
+     * 
+     * @author 芮浩
+     * @date 2016-6-5
+     * 
+     * @param map
+     * @param key
+     * @return
+     */
     public static int getIntFromMap(Map<String, Object> map, String key) {
         if (key == "" || key == null) {
             return 0;
@@ -90,6 +136,6 @@ public class Util {
      * @return 读到的xml字符串
      */
     public static String getLocalXMLString(String localPath) throws IOException {
-        return Util.inputStreamToString(Util.class.getResourceAsStream(localPath));
+        return WeiChatUtil.inputStreamToString(WeiChatUtil.class.getResourceAsStream(localPath));
     }
 }

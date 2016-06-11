@@ -13,6 +13,7 @@ import com.woyun.streambank.dao.RechargeRequestMapper;
 import com.woyun.streambank.model.Order;
 import com.woyun.streambank.model.RechargeRequest;
 import com.woyun.streambank.service.AlipayOrderService;
+import com.woyun.streambank.service.OrderService;
 import com.woyun.streambank.util.alipay.AlipayConfig;
 import com.woyun.streambank.util.alipay.AlipaySubmit;
 
@@ -24,6 +25,8 @@ public class AlipayOrderServiceImpl implements AlipayOrderService{
 	private OrderMapper orderMapper;
 	@Autowired
 	private RechargeRequestMapper rechargeRequestMapper;
+	@Autowired
+	private OrderService orderService;
 	public String getAlipayUrl(Order order) throws Exception {
 		try{
 			String subject = "流量充值-"+order.getPackageName();
@@ -66,7 +69,7 @@ public class AlipayOrderServiceImpl implements AlipayOrderService{
 				int addCode = rechargeRequestMapper.addRechargeRequest(rechargeRequest);
 				if(addCode != 0){
 					order.setTradeNo(alipayMap.get("trade_no"));//支付宝交易号
-					boolean flag = updOrderPayState(order);
+					boolean flag = orderService.updOrderPayState(order);
 					//完成回调
 					if(flag){
 						return AlipayConfig.ALIPAY_NOTIFY_SUCCESS;
@@ -114,17 +117,17 @@ public class AlipayOrderServiceImpl implements AlipayOrderService{
 	 * @param order
 	 * @return
 	 */
-	private boolean updOrderPayState(Order order){
-		Order updOrder = new Order();
-		updOrder.setTradeNo(order.getTradeNo());
-		updOrder.setOrderId(order.getOrderId());
-		updOrder.setPayState(2);//支付宝交易状态2为已支付
-		updOrder.setPhone(order.getPhone());
-		int result = orderMapper.updOrderById(updOrder);
-		if(result != 0){
-			return true;
-		}
-		return false;
-	}
+//	private boolean updOrderPayState(Order order){
+//		Order updOrder = new Order();
+//		updOrder.setTradeNo(order.getTradeNo());
+//		updOrder.setOrderId(order.getOrderId());
+//		updOrder.setPayState(2);//支付宝交易状态2为已支付
+//		updOrder.setPhone(order.getPhone());
+//		int result = orderMapper.updOrderById(updOrder);
+//		if(result != 0){
+//			return true;
+//		}
+//		return false;
+//	}
 	
 }

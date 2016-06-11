@@ -3,7 +3,7 @@
  "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
 
 <mapper namespace="com.woyun.streambank.dao.DealerMapper">
-	<select id="findDealerByNo" 
+	<!-- <select id="findDealerByNo" 
 		resultType="com.woyun.streambank.model.Dealer"
 		parameterType="string">
 		SELECT 
@@ -16,5 +16,19 @@
 			dealer
 		WHERE 
 			dealer_no = #{value}
+	</select> -->
+	<select id="findDealerByName" 
+		resultType="com.woyun.streambank.model.Dealer"
+		parameterType="string">
+		SELECT 
+			dealer_id dealerId,
+			dealer_name dealerName,
+			dealer_no dealerNo,
+			retail_discount retailDiscount,
+			settlement_discount settlementDiscount
+		FROM 
+			dealer
+		WHERE 
+			dealer_name = #{value}
 	</select>
 </mapper>

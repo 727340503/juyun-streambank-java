@@ -16,7 +16,7 @@ public interface PackageService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Result getPackageList(String phone,String dealerNo) throws Exception;
+	public Result getPackageList(String phone,String dealerName) throws Exception;
 	/**
 	 * 获取单个套餐信息
 	 * @author 芮浩
